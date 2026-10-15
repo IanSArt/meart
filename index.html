@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Christian Aditya Wardana - Cozy Personal Hub</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cozy: {
+                            50: '#fdfbf7',
+                            100: '#f7f0e5',
+                            200: '#ebd8c3',
+                            300: '#dbba98',
+                            400: '#c6956b',
+                            500: '#ab7243',
+                            600: '#8f5732',
+                            700: '#734127',
+                            800: '#5c3220',
+                            900: '#3e2217',
+                            accent: '#d96b27',
+                            terracotta: '#a0522d',
+                            cream: '#fbf8f3',
+                            sand: '#eddcc9',
+                            warmgold: '#e2a355'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        serif: ['"Playfair Display"', 'serif'],
+                        hand: ['"Caveat"', 'cursive']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f7f0e5;
+            color: #3e2217;
+            min-height: 100vh;
+        }
+        
+        .cozy-glass {
+            background: rgba(251, 248, 243, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(235, 216, 195, 0.8);
+        }
+        
+        .cozy-shadow {
+            box-shadow: 0 12px 35px -8px rgba(62, 34, 23, 0.09), 0 4px 10px -2px rgba(62, 34, 23, 0.04);
+        }
+        
+        .polaroid-shadow {
+            box-shadow: 0 20px 40px -10px rgba(62, 34, 23, 0.18), 0 8px 16px -6px rgba(62, 34, 23, 0.08);
+        }
+
+        .polaroid-card {
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+        }
+        .polaroid-card:hover {
+            transform: translateY(-8px) rotate(1deg) scale(1.02);
+        }
+
+        .corner-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        .corner-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 22px 35px -10px rgba(171, 114, 67, 0.25);
+        }
+
+        /* View Animations */
+        .page-view {
+            display: none;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+        
+        .page-view.active-view {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f7f0e5; }
+        ::-webkit-scrollbar-thumb { background: #dbba98; border-radius: 4px; }
+    </style>
+</head>
+<body class="font-sans antialiased selection:bg-cozy-300 selection:text-cozy-900 relative overflow-x-hidden min-h-screen flex flex-col justify-between">
+
+    <!-- Ambient Particle Background -->
+    <canvas id="particleCanvas" class="fixed top-0 left-0 w-full h-full pointer-events-none z-0 opacity-50"></canvas>
+
+    <!-- Warm Glow Overlays -->
+    <div class="fixed top-0 left-1/4 w-96 h-96 bg-cozy-warmgold/15 rounded-full blur-3xl pointer-events-none -z-10"></div>
+    <div class="fixed bottom-10 right-10 w-[500px] h-[500px] bg-cozy-accent/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+
+    <!-- Header / Navbar -->
+    <header class="sticky top-0 z-40 cozy-glass border-b border-cozy-200/80">
+        <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+            <button onclick="switchView('home-view')" class="flex items-center gap-3 group text-left">
+                <div class="w-10 h-10 rounded-2xl bg-cozy-800 text-cozy-100 flex items-center justify-center font-serif font-bold text-lg shadow-md group-hover:scale-105 transition-transform">
+                    CA
+                </div>
+                <div>
+                    <h1 class="font-serif font-bold text-lg text-cozy-900 leading-tight">Christian Aditya W.</h1>
+                    <p class="text-[11px] text-cozy-600 font-medium tracking-wide">Cozy Personal Hub</p>
+                </div>
+            </button>
+            
+            <nav class="hidden md:flex items-center gap-6 text-xs font-bold text-cozy-700 uppercase tracking-wider">
+                <button onclick="switchView('home-view')" class="hover:text-cozy-accent transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-house"></i> Beranda
+                </button>
+                <button onclick="switchView('merakit-pc-view')" class="hover:text-cozy-accent transition-colors">Merakit PC</button>
+                <button onclick="switchView('valorant-view')" class="hover:text-red-600 transition-colors">Valorant Game</button>
+                <button onclick="switchView('lan-view')" class="hover:text-blue-700 transition-colors">Infrastruktur LAN</button>
+                <button onclick="switchView('musik-view')" class="hover:text-amber-700 transition-colors">Bermusik (W.I.P)</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="relative z-10 max-w-6xl mx-auto px-6 py-8 md:py-12 flex-grow w-full">
+
+        <!-- ================= HOME VIEW ================= -->
+        <div id="home-view" class="page-view active-view space-y-16">
+            
+            <!-- Profile Section -->
+            <section class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+                <!-- Polaroid Photo -->
+                <div class="lg:col-span-5 flex flex-col items-center">
+                    <div class="relative group cursor-pointer" onclick="openPhotoModal()">
+                        <div class="absolute -top-4 left-1/2 -translate-x-1/2 w-28 h-8 bg-cozy-200/80 backdrop-blur-sm border border-cozy-300/50 rotate-[-2deg] z-20 shadow-sm opacity-90"></div>
+                        
+                        <div class="polaroid-card polaroid-shadow bg-white p-4 pb-12 rounded-sm border border-cozy-200/60 rotate-[-1.5deg] relative">
+                            <div class="w-64 h-80 sm:w-72 sm:h-96 rounded-sm overflow-hidden bg-cozy-100 relative">
+                                <img id="mainProfilePic" src="1000152894_980ade.jpg" alt="Christian Aditya Wardana" class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105" onerror="handleImageFallback(this)">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                                    <span class="text-white text-xs font-semibold flex items-center gap-1.5"><i class="fa-solid fa-magnifying-glass-plus"></i> Perbesar Foto</span>
+                                </div>
+                            </div>
+
+                            <div class="absolute bottom-3 left-0 w-full text-center">
+                                <p class="font-hand text-2xl font-bold text-cozy-800">Christian Aditya W. ☕</p>
+                            </div>
+
+                            <div class="absolute -bottom-4 -right-4 bg-cozy-accent text-white px-3.5 py-1.5 rounded-full shadow-lg text-xs font-bold tracking-wider uppercase rotate-[6deg] flex items-center gap-1.5">
+                                <i class="fa-solid fa-house"></i> Babakan
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 text-center space-y-2 w-full max-w-xs">
+                        <label for="imageUploadInput" class="cursor-pointer inline-flex items-center justify-center gap-2 px-4 py-2.5 w-full rounded-2xl bg-white border border-cozy-300 text-cozy-800 text-xs font-semibold hover:bg-cozy-100 transition-all cozy-shadow">
+                            <i class="fa-solid fa-arrow-up-from-bracket text-cozy-accent"></i>
+                            <span>Ganti / Upload Foto Profil</span>
+                        </label>
+                        <input type="file" id="imageUploadInput" accept="image/*" class="hidden" onchange="loadUserPhoto(event)">
+                    </div>
+                </div>
+
+                <!-- Profile Bio -->
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cozy-200/80 text-cozy-900 text-xs font-bold tracking-wider uppercase">
+                        <i class="fa-solid fa-user text-cozy-accent"></i> Profil Biodata
+                    </div>
+                    
+                    <h2 class="font-serif text-4xl sm:text-5xl font-extrabold text-cozy-900 tracking-tight leading-tight">
+                        Christian Aditya <span class="text-cozy-accent italic">Wardana</span>
+                    </h2>
+
+                    <p class="text-cozy-800 text-base sm:text-lg leading-relaxed font-normal">
+                        Halo! Saya berdomisili di <span class="font-bold text-cozy-900 underline decoration-cozy-accent/40">Kampung Babakan</span>. Saya memiliki bakat dan keahlian mendalam di bidang <span class="font-bold text-cozy-900">Perkomputeran, Merakit PC, dan Infrastruktur Jaringan LAN</span>, serta hobi bermain <span class="font-bold text-cozy-900">Valorant</span> dan <span class="font-bold text-cozy-900">Bermusik Gitar</span>.
+                    </p>
+
+                    <!-- Info Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                        <div class="p-4 rounded-2xl bg-white/90 border border-cozy-200 cozy-shadow flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-cozy-200/70 flex items-center justify-center text-cozy-800 text-xl">
+                                <i class="fa-solid fa-cake-candles"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs text-cozy-500 font-semibold uppercase tracking-wider block">Tanggal Lahir</span>
+                                <span class="text-sm font-bold text-cozy-900">24 November 2007 (24/11/2007)</span>
+                            </div>
+                        </div>
+
+                        <div class="p-4 rounded-2xl bg-white/90 border border-cozy-200 cozy-shadow flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-cozy-200/70 flex items-center justify-center text-cozy-800 text-xl">
+                                <i class="fa-solid fa-location-dot"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs text-cozy-500 font-semibold uppercase tracking-wider block">Tempat Tinggal</span>
+                                <span class="text-sm font-bold text-cozy-900">Kampung Babakan</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4 SUDUT KESENANGAN (CARD HUBS) -->
+            <section class="space-y-8 pt-4">
+                <div class="text-center max-w-2xl mx-auto space-y-2">
+                    <span class="text-xs font-extrabold tracking-widest text-cozy-accent uppercase">Eksplorasi Hobi & Keahlian</span>
+                    <h3 class="font-serif text-3xl font-bold text-cozy-900">4 Sudut Kesenangan</h3>
+                    <p class="text-cozy-600 text-sm">Klik salah satu kotak di bawah untuk membuka halaman khususnya secara instan (tanpa scroll).</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Sudut 1: Merakit PC -->
+                    <div onclick="switchView('merakit-pc-view')" class="corner-card bg-white p-6 rounded-3xl border border-cozy-200 cozy-shadow flex flex-col justify-between h-64 group relative overflow-hidden">
+                        <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-cozy-100 rounded-full group-hover:scale-125 transition-transform duration-500 -z-0"></div>
+                        <div class="relative z-10 space-y-3">
+                            <div class="w-12 h-12 rounded-2xl bg-cozy-800 text-cozy-100 flex items-center justify-center text-xl shadow-md">
+                                <i class="fa-solid fa-microchip"></i>
+                            </div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-cozy-accent block">Keahlian & Bakat</span>
+                            <h4 class="font-serif font-bold text-lg text-cozy-900 group-hover:text-cozy-accent transition-colors">Merakit PC</h4>
+                            <p class="text-xs text-cozy-600">Alat perlengkapan wajib bawa dan langkah kegiatan perakitan PC.</p>
+                        </div>
+                        <div class="relative z-10 flex items-center gap-2 text-xs font-bold text-cozy-800 pt-4">
+                            <span>Buka Halaman</span>
+                            <i class="fa-solid fa-arrow-right text-cozy-accent group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+
+                    <!-- Sudut 2: Gaming Valorant -->
+                    <div onclick="switchView('valorant-view')" class="corner-card bg-white p-6 rounded-3xl border border-cozy-200 cozy-shadow flex flex-col justify-between h-64 group relative overflow-hidden">
+                        <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-red-100/60 rounded-full group-hover:scale-125 transition-transform duration-500 -z-0"></div>
+                        <div class="relative z-10 space-y-3">
+                            <div class="w-12 h-12 rounded-2xl bg-red-600 text-white flex items-center justify-center text-xl shadow-md">
+                                <i class="fa-solid fa-crosshairs"></i>
+                            </div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-red-600 block">Hobi Game</span>
+                            <h4 class="font-serif font-bold text-lg text-cozy-900 group-hover:text-red-600 transition-colors">Valorant Hub</h4>
+                            <p class="text-xs text-cozy-600">Rank Silver 2, 20 Kills/game, & Vandal Prime 1.0.</p>
+                        </div>
+                        <div class="relative z-10 flex items-center gap-2 text-xs font-bold text-cozy-800 pt-4">
+                            <span>Buka Halaman</span>
+                            <i class="fa-solid fa-arrow-right text-red-600 group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+
+                    <!-- Sudut 3: Infrastruktur LAN -->
+                    <div onclick="switchView('lan-view')" class="corner-card bg-white p-6 rounded-3xl border border-cozy-200 cozy-shadow flex flex-col justify-between h-64 group relative overflow-hidden">
+                        <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-blue-100/60 rounded-full group-hover:scale-125 transition-transform duration-500 -z-0"></div>
+                        <div class="relative z-10 space-y-3">
+                            <div class="w-12 h-12 rounded-2xl bg-blue-700 text-white flex items-center justify-center text-xl shadow-md">
+                                <i class="fa-solid fa-network-wired"></i>
+                            </div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-700 block">Keahlian Jaringan</span>
+                            <h4 class="font-serif font-bold text-lg text-cozy-900 group-hover:text-blue-700 transition-colors">Infrastruktur LAN</h4>
+                            <p class="text-xs text-cozy-600">Alat crimping, LAN tester, switch, & urutan kabel UTP versi perakitan.</p>
+                        </div>
+                        <div class="relative z-10 flex items-center gap-2 text-xs font-bold text-cozy-800 pt-4">
+                            <span>Buka Halaman</span>
+                            <i class="fa-solid fa-arrow-right text-blue-700 group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+
+                    <!-- Sudut 4: Bermusik (W.I.P) -->
+                    <div onclick="switchView('musik-view')" class="corner-card bg-white p-6 rounded-3xl border border-cozy-200 cozy-shadow flex flex-col justify-between h-64 group relative overflow-hidden">
+                        <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-amber-100/60 rounded-full group-hover:scale-125 transition-transform duration-500 -z-0"></div>
+                        <div class="relative z-10 space-y-3">
+                            <div class="w-12 h-12 rounded-2xl bg-amber-700 text-white flex items-center justify-center text-xl shadow-md">
+                                <i class="fa-solid fa-guitar"></i>
+                            </div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-amber-700 block">Hobi & Bakat Gitar</span>
+                            <h4 class="font-serif font-bold text-lg text-cozy-900 group-hover:text-amber-700 transition-colors">Bermusik (W.I.P)</h4>
+                            <p class="text-xs text-cozy-600">Gitar akustik, fingerstyle, & lagu Sempurna (Andra & The BackBone).</p>
+                        </div>
+                        <div class="relative z-10 flex items-center gap-2 text-xs font-bold text-cozy-800 pt-4">
+                            <span>Buka Halaman</span>
+                            <i class="fa-solid fa-arrow-right text-amber-700 group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+
+        <!-- ================= MERAKIT PC VIEW ================= -->
+        <div id="merakit-pc-view" class="page-view space-y-8">
+            <div class="flex items-center justify-between border-b border-cozy-200 pb-4">
+                <button onclick="switchView('home-view')" class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white border border-cozy-300 text-cozy-800 text-xs font-bold hover:bg-cozy-100 transition-all cozy-shadow">
+                    <i class="fa-solid fa-arrow-left text-cozy-accent"></i> Kembali ke Beranda
+                </button>
+                <span class="text-xs font-extrabold uppercase tracking-widest text-cozy-accent">Keahlian & Bakat Perkomputeran</span>
+            </div>
+
+            <div class="space-y-3">
+                <h3 class="font-serif text-3xl sm:text-4xl font-bold text-cozy-900">Kegiatan Merakit & Tuning PC</h3>
+                <p class="text-cozy-600 text-sm max-w-2xl">Daftar perlengkapan alat kerja dan rincian langkah kegiatan merakit hardware komputer secara presisi.</p>
+            </div>
+
+            <!-- Peralatan Yang Dibawa -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-cozy-200 cozy-shadow space-y-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-cozy-200 text-cozy-800 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-toolbox text-lg"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-serif font-bold text-lg text-cozy-900">Barang & Tool Kit Yang Biasa Dibawa</h4>
+                        <p class="text-xs text-cozy-500">Peralatan wajib saat melakukan setup dan perakitan PC</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+                    <div class="p-4 rounded-2xl bg-cozy-50 border border-cozy-200 flex items-start gap-3">
+                        <i class="fa-solid fa-screwdriver text-cozy-accent text-base mt-0.5"></i>
+                        <div>
+                            <strong class="text-cozy-900 block font-bold mb-1">Obeng Magnetik PH2 & Long Shaft</strong>
+                            <span class="text-cozy-700">Untuk mengunci sekrup motherboard, power supply, dan pendingin CPU tanpa risiko jatuh ke PCB.</span>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-cozy-50 border border-cozy-200 flex items-start gap-3">
+                        <i class="fa-solid fa-droplet text-cozy-accent text-base mt-0.5"></i>
+                        <div>
+                            <strong class="text-cozy-900 block font-bold mb-1">Thermal Paste Kualitas Tinggi</strong>
+                            <span class="text-cozy-700">Suntikan pasta pendingin CPU untuk konduktivitas termal optimal ke heatsink cooler.</span>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-cozy-50 border border-cozy-200 flex items-start gap-3">
+                        <i class="fa-solid fa-hand-holding-hand text-cozy-accent text-base mt-0.5"></i>
+                        <div>
+                            <strong class="text-cozy-900 block font-bold mb-1">Gelang / Mat Anti-Statik (ESD)</strong>
+                            <span class="text-cozy-700">Mencegah loncatan listrik statis tubuh yang dapat merusak komponen sensitif IC motherboard.</span>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-cozy-50 border border-cozy-200 flex items-start gap-3">
+                        <i class="fa-solid fa-box text-cozy-accent text-base mt-0.5"></i>
+                        <div>
+                            <strong class="text-cozy-900 block font-bold mb-1">Baki Magnetik Pemisah Sekrup</strong>
+                            <span class="text-cozy-700">Wadah pengaman sekrup casing, standoff, baut M.2, dan sekrup VGA agar tidak tercecer.</span>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-cozy-50 border border-cozy-200 flex items-start gap-3">
+                        <i class="fa-solid fa-tape text-cozy-accent text-base mt-0.5"></i>
+                        <div>
+                            <strong class="text-cozy-900 block font-bold mb-1">Kabel Ties & Gunting Potong</strong>
+                            <span class="text-cozy-700">Untuk merapikan jalur kabel di belakang tray casing agar aliran udara (airflow) lancar.</span>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-cozy-50 border border-cozy-200 flex items-start gap-3">
+                        <i class="fa-solid fa-compact-disc text-cozy-accent text-base mt-0.5"></i>
+                        <div>
+                            <strong class="text-cozy-900 block font-bold mb-1">Flashdisk Installer OS & Driver</strong>
+                            <span class="text-cozy-700">USB bootable Windows serta file driver LAN/chipset terbaru untuk tahap pasca perakitan.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tahapan Kegiatan Merakit PC -->
+            <div class="space-y-4 pt-2">
+                <h4 class="font-serif font-bold text-xl text-cozy-900 flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-cozy-accent"></i> Tahapan Kegiatan Merakit PC
+                </h4>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-2xl border border-cozy-200 cozy-shadow space-y-2">
+                        <span class="w-7 h-7 rounded-full bg-cozy-800 text-white font-bold text-xs flex items-center justify-center">1</span>
+                        <h5 class="font-bold text-sm text-cozy-900">Pemasangan Komponen Utama</h5>
+                        <p class="text-xs text-cozy-600">Memasang CPU, M.2 NVMe SSD, dan modul RAM pada slot Motherboard di atas meja pengujian.</p>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-cozy-200 cozy-shadow space-y-2">
+                        <span class="w-7 h-7 rounded-full bg-cozy-800 text-white font-bold text-xs flex items-center justify-center">2</span>
+                        <h5 class="font-bold text-sm text-cozy-900">Aplikasi Cooler & Standoff</h5>
+                        <p class="text-xs text-cozy-600">Oleskan thermal paste, kunci heatsink/AIO cooler, dan pasang baut standoff pada casing.</p>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-cozy-200 cozy-shadow space-y-2">
+                        <span class="w-7 h-7 rounded-full bg-cozy-800 text-white font-bold text-xs flex items-center justify-center">3</span>
+                        <h5 class="font-bold text-sm text-cozy-900">Instalasi PSU & Casing</h5>
+                        <p class="text-xs text-cozy-600">Memasang Power Supply unit, menempatkan motherboard ke casing, dan kunci slot PCIe GPU.</p>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-cozy-200 cozy-shadow space-y-2">
+                        <span class="w-7 h-7 rounded-full bg-cozy-800 text-white font-bold text-xs flex items-center justify-center">4</span>
+                        <h5 class="font-bold text-sm text-cozy-900">Wiring & First POST Test</h5>
+                        <p class="text-xs text-cozy-600">Merapikan kabel power 24-pin/8-pin, cable ties management, lalu tes booting BIOS awal.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ================= VALORANT GAME VIEW ================= -->
+        <div id="valorant-view" class="page-view space-y-8">
+            <div class="flex items-center justify-between border-b border-cozy-200 pb-4">
+                <button onclick="switchView('home-view')" class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white border border-cozy-300 text-cozy-800 text-xs font-bold hover:bg-cozy-100 transition-all cozy-shadow">
+                    <i class="fa-solid fa-arrow-left text-red-600"></i> Kembali ke Beranda
+                </button>
+                <span class="text-xs font-extrabold uppercase tracking-widest text-red-600">Hobi Game Valorant</span>
+            </div>
+
+            <div class="space-y-3">
+                <h3 class="font-serif text-3xl sm:text-4xl font-bold text-cozy-900">Valorant Player Record</h3>
+                <p class="text-cozy-600 text-sm max-w-2xl">Statistik gameplay, peringkat kompetitif Silver 2, dan skin senjata andalan Prime Vandal 1.0.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+                <!-- Rank Display with URL Image -->
+                <div class="lg:col-span-6 bg-slate-900 text-white p-6 sm:p-8 rounded-3xl cozy-shadow space-y-6 flex flex-col justify-between border border-slate-700 relative overflow-hidden">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span>
+                            <span class="text-xs font-bold uppercase tracking-widest text-red-400">Competitive Rank</span>
+                        </div>
+                        <span class="text-xs bg-red-500/20 text-red-300 border border-red-500/30 px-3 py-1 rounded-full font-bold">Valorant Act</span>
+                    </div>
+
+                    <div class="rounded-2xl overflow-hidden border border-slate-700 bg-slate-950/80 shadow-2xl relative group flex items-center justify-center p-4">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxX-TAQH1OEjZYYVYgD4I8GEyayLTzdd6G6-Z0XoQhjnkvfE8blcmP0_t0&s=10" alt="Silver 2 Rank Valorant" class="max-h-64 object-contain group-hover:scale-105 transition-transform duration-500 rounded-xl">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 pt-2">
+                        <div class="p-4 rounded-2xl bg-slate-800/90 border border-slate-700/80">
+                            <span class="text-[10px] text-slate-400 uppercase font-bold block">Avg Kills / Game</span>
+                            <span class="font-serif font-bold text-2xl text-emerald-400">20 Kills</span>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-slate-800/90 border border-slate-700/80">
+                            <span class="text-[10px] text-slate-400 uppercase font-bold block">Peringkat</span>
+                            <span class="font-serif font-bold text-2xl text-slate-200">Silver 2</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weapon Skin Display with URL Image -->
+                <div class="lg:col-span-6 bg-white rounded-3xl p-6 sm:p-8 border border-cozy-200 cozy-shadow flex flex-col justify-between space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-bold text-cozy-500 uppercase tracking-wider block">Skin Senjata Utama & Lagu</span>
+                            <h4 class="font-serif font-bold text-2xl text-cozy-900">Prime Vandal 1.0</h4>
+                        </div>
+                        <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-800 font-bold text-xs flex items-center gap-1.5">
+                            <i class="fa-solid fa-crown text-amber-600"></i> Exclusive Skin
+                        </span>
+                    </div>
+
+                    <div class="rounded-2xl overflow-hidden border border-amber-500/30 bg-slate-950 p-2 shadow-xl group">
+                        <img src="https://valorantstrike.com/wp-content/uploads/2020/06/Valorant-Prime-Vandal-hd.jpg" alt="Prime Vandal 1.0" class="w-full h-auto object-contain group-hover:scale-105 transition-transform duration-500 rounded-xl">
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-cozy-50 border border-cozy-200 text-xs text-cozy-800 leading-relaxed space-y-2">
+                        <div class="flex items-center justify-between border-b border-cozy-200 pb-2">
+                            <span class="font-bold text-cozy-900"><i class="fa-solid fa-music text-red-600"></i> Musik Tema Valorant:</span>
+                            <span class="text-red-700 font-bold">"Die For You" (Valorant Champions)</span>
+                        </div>
+                        <p>
+                            Prime Vandal 1.0 memberikan kestabilan tembakan dan efek laser eliminasi yang tajam, sangat pas ditemani alunan musik <em>"Die For You"</em> saat bertempur di ranked match.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ================= INFRASTRUKTUR LAN VIEW ================= -->
+        <div id="lan-view" class="page-view space-y-8">
+            <div class="flex items-center justify-between border-b border-cozy-200 pb-4">
+                <button onclick="switchView('home-view')" class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white border border-cozy-300 text-cozy-800 text-xs font-bold hover:bg-cozy-100 transition-all cozy-shadow">
+                    <i class="fa-solid fa-arrow-left text-blue-700"></i> Kembali ke Beranda
+                </button>
+                <span class="text-xs font-extrabold uppercase tracking-widest text-blue-700">Keahlian Jaringan LAN</span>
+            </div>
+
+            <div class="space-y-3">
+                <h3 class="font-serif text-3xl sm:text-4xl font-bold text-cozy-900">Kegiatan Setup Infrastruktur LAN</h3>
+                <p class="text-cozy-600 text-sm max-w-2xl">Peralatan crimping, perangkat jaringan wajib, serta langkah kegiatan instalasi jaringan LAN layaknya versi merakit PC.</p>
+            </div>
+
+            <!-- Peralatan LAN Yang Dibawa -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-cozy-200 cozy-shadow space-y-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-network-wired text-lg"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-serif font-bold text-lg text-cozy-900">Barang & Alat LAN Yang Biasa Dibawa</h4>
+                        <p class="text-xs text-cozy-500">Peralatan pendukung wajib saat sesi instalasi kabel LAN</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+                    <div class="p-4 rounded-2xl bg-cozy-50 border border-cozy-200 flex items-start gap-3">
+                        <i class="fa-solid fa-scissors text-blue-700 text-base mt-0.5"></i>
+                        <div>
+                            <strong class="text-cozy-900 block font-bold mb-1">Tang Crimp RJ-45 & Stripper</strong>
+                            <span class="text-cozy-700">Alat pengupas jaket luar kabel UTP serta pengunci pin tembaga konektor RJ-45 secara akurat.</span>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-cozy-50 border border-cozy-200 flex items-start gap-3">
+                        <i class="fa-solid fa-square-poll-vertical text-blue-700 text-base mt-0.5"></i>
+                        <div>
+                            <strong class="text-cozy-900 block font-bold mb-1">LAN Network Cable Tester</strong>
+                            <span class="text-cozy-700">Alat uji urutan pin LED 1-8 untuk memastikan kabel Straight (T568B) / Cross tersambung sempurna.</span>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded
